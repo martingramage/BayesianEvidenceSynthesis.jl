@@ -16,5 +16,5 @@ RUN julia --project=. -e 'using Pkg; Pkg.instantiate()'
 # Expose the port
 EXPOSE 8080
 
-# Explicitly use the project environment when starting the server
-CMD ["julia", "--project=.", "server.jl"]
+# Explicitly use the project environment when starting the server (deleting unused RAM)
+CMD ["julia", "--project=.", "--heap-size-hint=350M", "server.jl"]
