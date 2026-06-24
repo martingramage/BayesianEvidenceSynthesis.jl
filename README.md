@@ -27,9 +27,38 @@ The project is implemented entirely in Julia and exposes its functionality throu
 
 ---
 
-## Repository Structure
+## Usage Modes
 
-The repository follows a modular architecture:
+| Mode                     | Requirements                             |
+| ------------------------ | ---------------------------------------- |
+| Quick Report Generation  | Open `index.html` and use the hosted API |
+| Local API Execution      | Julia installation required              |
+| Development & Validation | Julia + tests + examples                 |
+
+---
+
+## Quick Start (No Installation Required)
+
+If your goal is simply to generate Bayesian evidence synthesis reports, no Julia installation is required.
+
+The repository includes a lightweight browser interface:
+
+```text
+index.html
+```
+
+Simply:
+
+1. Download or clone the repository.
+2. Open `index.html` in your preferred browser.
+3. Upload your study data.
+4. Download the generated PDF report.
+
+The frontend communicates directly with the hosted BayesianEvidenceSynthesis API, allowing report generation without running any local services.
+
+---
+
+## Repository Structure
 
 ```text
 .
@@ -60,8 +89,8 @@ The repository follows a modular architecture:
 
 This framework was developed following a comparative evaluation of two widely used approaches for Bayesian evidence synthesis:
 
-* **RBesT**: MCMC-based estimation of MAP priors.
-* **Bayesmeta**: Analytical and numerical integration methods for Bayesian meta-analysis.
+* **RBesT** — MCMC-based estimation of MAP priors.
+* **Bayesmeta** — Analytical and numerical integration methods for Bayesian meta-analysis.
 
 For a detailed methodological discussion and benchmarking study, see:
 
@@ -83,13 +112,7 @@ https://github.com/martingramage/RBest-vs-Bayesmeta
 
 ---
 
-## API
-
-### Interactive Frontend
-
-Launch the hosted web interface to generate reports directly from your browser:
-
-[![Open Frontend](https://img.shields.io/badge/Open-Web%20Interface-blue?style=for-the-badge)](https://huggingface.co/spaces/martingramage/bayesian-evidence-synthesis)
+## REST API
 
 ### Endpoint
 
@@ -99,7 +122,7 @@ POST /generate_report
 
 ### Input
 
-* Binary or normal summary data file containing study information.
+* Binary or summary data file containing study information.
 
 ### Output
 
@@ -111,7 +134,7 @@ A PDF report including:
 * Summary tables
 * Graphical outputs
 
-### Example using curl
+### Example Request
 
 ```bash
 curl -X POST \
@@ -122,7 +145,11 @@ curl -X POST \
 
 ---
 
-## Installation and Usage
+## Local Installation and Usage
+
+For users who wish to run the framework locally, customize analyses, execute examples, or contribute to development.
+
+### Installation
 
 Clone the repository and instantiate the Julia environment:
 
@@ -134,7 +161,7 @@ cd BayesianEvidenceSynthesis.jl
 julia --project=. -e 'using Pkg; Pkg.instantiate()'
 ```
 
-### 1. Start the API Server
+### 1. Start the Local API Server
 
 Launch the Oxygen.jl server:
 
@@ -142,11 +169,11 @@ Launch the Oxygen.jl server:
 julia --project=. server.jl
 ```
 
-Once started, the API endpoint will be available locally.
+Once started, the REST API will be available locally.
 
 ### 2. Run the Test Suite
 
-Verify that all inference routines and diagnostics pass validation:
+Validate inference routines and diagnostics:
 
 ```bash
 julia --project=. test/runtests.jl
@@ -154,33 +181,34 @@ julia --project=. test/runtests.jl
 
 ### 3. Execute Example Workflows
 
-Run the provided examples to reproduce complete evidence synthesis workflows:
+Run one of the included end-to-end examples:
 
 ```bash
 julia --project=. examples/main_binary.jl
 ```
 
-> Additional examples are available in the `examples/` directory.
+Additional workflows are available in the `examples/` directory.
 
 ### 4. Submit Data
 
-Data can be submitted in two ways:
+#### Option A — Browser Interface
 
-#### Option A: Local Frontend
+Open:
 
-Open the browser interface:
-
-```bash
-open index.html
+```text
+index.html
 ```
 
-or simply open `index.html` in your preferred browser.
+in your preferred browser.
 
-The interface allows uploading study data and downloading the generated PDF report.
+The frontend can be configured to use either:
 
-#### Option B: REST API
+* The hosted cloud API.
+* Your locally running API instance.
 
-Send the data directly through the API:
+#### Option B — REST API
+
+Send data directly to the local server:
 
 ```bash
 curl -X POST \
@@ -206,4 +234,5 @@ julia --project=. -e 'using BayesianEvidenceSynthesis; println("Package integrit
 This project is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0).
 
 See the `LICENSE` file for details.
+
 
