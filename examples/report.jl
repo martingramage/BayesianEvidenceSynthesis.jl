@@ -3,7 +3,7 @@ using BayesianEvidenceSynthesis
 using Distributions
 using Plots
 
-# 1. Create a sample clinical trial dataset
+# 1. Prepare sample clinical trial dataset
 filepath = "sample_study_for_report.txt"
 open(filepath, "w") do io
     println(io, "normal")
@@ -16,23 +16,34 @@ end
 println("Running Inference Pipeline...")
 results = run_inference_pipeline(filepath)
 
-println("Calculating Metrics and Generating PDF...")
+# 2. Reusable table formatting function
+function format_mixture_table(mix, label::String)
+    table = "--- $label ---\n"
+    table *= "MIXTURE COMPONENTS (Weights | Parameters)\n"
+    table *= "---------------------------------------------------\n"
+    is_beta = hasproperty(mix, :alphas)
+    num_comp = length(mix.weights)
+    for i in 1:num_comp
+        w = round(mix.weights[i], digits=3)
+        comp_name = (label == "ROBUSTIFIED" && i == num_comp) ? "robust" : "Comp $i"
+        if is_beta
+            m1 = round(mix.alphas[i], digits=2)
+            m2 = round(mix.betas[i], digits=2)
+            table *= "$comp_name: $w | Alpha: $m1 ; Beta: $m2\n"
+        else
+            m1 = round(mix.mus[i], digits=3)
+            m2 = round(mix.sigmas[i], digits=3)
+            table *= "$comp_name: $w | Mean: $m1 ; Sig: $m2\n"
+        end
+    end
+    return table * "\n"
+end
 
-# 2. Calculate all three ESS methods
+# 3. Analytics and Axis Setup
 ess_elir_val   = ess_elir(results.posterior)
 ess_moment_val = ess_moment(results.posterior)
 ess_morita_val = ess_morita(results.posterior)
 
-# 3. Universal Density Evaluator
-function eval_density(mix, x)
-    if hasproperty(mix, :alphas) 
-        return sum(w * pdf(Beta(a, b), x) for (w, a, b) in zip(mix.weights, mix.alphas, mix.betas))
-    else
-        return sum(w * pdf(Normal(mu, sig), x) for (w, mu, sig) in zip(mix.weights, mix.mus, mix.sigmas))
-    end
-end
-
-# 4. Determine Axis Limits
 if hasproperty(results.posterior, :alphas)
     x_vals = range(0.001, 0.999, length=1000)
     x_label = "Response Scale (p)"
@@ -42,35 +53,29 @@ else
     x_label = "Effect Size (θ)"
 end
 
-# Evaluate the curves
+# 4. Generate Density Curves
 y_map = [eval_density(results.posterior, x) for x in x_vals]
 y_robust = [eval_density(results.robustified_posterior, x) for x in x_vals]
 
-# 5. Build Top Panel: The Distributions Plot
 p_dist = plot(x_vals, y_map, label="MAP Posterior", linewidth=2.5, color=:blue,
-              title="Bayesian Prior Distribution Comparison", xlabel=x_label, ylabel="Density")
-plot!(p_dist, x_vals, y_robust, label="Robustified MAP (20% Vague)", linewidth=2.5, color=:red, linestyle=:dash)
+              title="Prior Distribution Comparison", xlabel=x_label, ylabel="Density",
+              bottom_margin=10Plots.mm)
+plot!(p_dist, x_vals, y_robust, label="Robustified MAP", linewidth=2.5, color=:red, linestyle=:dash)
 
-# 6. Build Bottom Panel: The ESS Table
-table_text = """
----------------------------------------------------
-           EFFECTIVE SAMPLE SIZE (ESS)
----------------------------------------------------
-  Method                   Equivalent Patients
----------------------------------------------------
-  ELIR (Recommended)     :  $ess_elir_val
-  Moments Matching       :  $ess_moment_val
-  Morita Method          :  $ess_morita_val
----------------------------------------------------
-"""
+# 5. Construct Report Text: Posterior -> ESS -> Robustified
+table_post = format_mixture_table(results.posterior, "POSTERIOR")
+ess_text   = "ESS (ELIR): $ess_elir_val | Moments: $ess_moment_val | Morita: $ess_morita_val"
+table_rob  = format_mixture_table(results.robustified_posterior, "ROBUSTIFIED")
 
-p_table = plot(framestyle=:none, showaxis=false, grid=false, xticks=false, yticks=false)
-annotate!(p_table, 0.15, 0.5, text(table_text, 11, :left, :courier, :black))
+full_text = table_post * "\n" * ess_text * "\n\n" * table_rob
 
-# 7. Combine and save
-final_layout = plot(p_dist, p_table, layout=grid(2, 1, heights=[0.75, 0.25]), size=(700, 650))
+# 6. Render Text Panel and Final Layout
+p_text = plot(framestyle=:none, showaxis=false, grid=false, xticks=false, yticks=false)
+annotate!(p_text, 0, 0.95, Plots.text(full_text, 8, :left, :courier, :black))
+
+final_layout = plot(p_dist, p_text, layout=grid(2, 1, heights=[0.4, 0.6]), size=(800, 1100))
 savefig(final_layout, "Bayesian_Analysis_Report.pdf")
 
-# Clean up
-rm(filepath)
+# 7. Cleanup
+rm(filepath, force=true)
 println("SUCCESS! Open 'Bayesian_Analysis_Report.pdf' to view your results.")

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h2>Bayesian Meta-Analysis Report Generator</h2>
+    <input type="file" id="fileInput">
+    <button onclick="uploadFile()">Generate PDF Report</button>
+
+    <script>
+    async function uploadFile() {
+        const fileInput = document.getElementById('fileInput');
+        const file = fileInput.files[0];
+        
+        // Ensure you are pointing to the full URL
+        const response = await fetch('http://localhost:8080/generate_report', {
+            method: 'POST',
+            body: file,
+            headers: { 'Content-Type': 'application/octet-stream' }
+        });
+
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "Report.pdf";
+            a.click();
+        } else {
+            console.error("Server error:", response.statusText);
+        }
+    }
+</script>
+</body>
+</html>

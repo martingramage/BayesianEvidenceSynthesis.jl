@@ -1,35 +1,33 @@
 # examples/main_normal.jl
 using BayesianEvidenceSynthesis
 
-# 1. Create a sample clinical trial dataset (Continuous/Normal Endpoint)
-filepath = "sample_normal_study.txt"
-open(filepath, "w") do io
-    println(io, "normal")
-    println(io, "mean,sd,n")
-    println(io, "0.5,0.1,10")
-    println(io, "0.6,0.12,15")
-    println(io, "0.45,0.08,20")
-end
+# Define path to normal study data
+data_path = joinpath(@__DIR__, "study_data_normal.txt")
 
 println("--- Starting Inference Pipeline (Normal Endpoint) ---")
+println("Using data: $data_path")
 
-# 2. Run the pipeline!
-results = run_inference_pipeline(filepath)
+# Execute inference pipeline
+results = run_inference_pipeline(data_path)
 
-# 3. View the Outputs
+# Display pipeline outputs
 println("\n=== FINAL PIPELINE OUTPUTS ===")
 
+# Posterior details
 println("\n1. MAP Posterior (Normal Mixture Components):")
-println("   Weights: ", round.(results.posterior.weights, digits=3))
-println("   Means:   ", round.(results.posterior.mus, digits=3))
-println("   Sigmas:  ", round.(results.posterior.sigmas, digits=3))
+for i in 1:length(results.posterior.weights)
+    println("   Comp $i: w=$(round(results.posterior.weights[i], digits=3)) | " *
+            "μ=$(round(results.posterior.mus[i], digits=3)) | " *
+            "σ=$(round(results.posterior.sigmas[i], digits=3))")
+end
 
-println("\n2. Effective Sample Size (ESS via ELIR):")
-println("   Equivalent to: ", results.ess, " patients")
+# ESS Analytics
+println("\n2. Effective Sample Size (ESS):")
+println("   ELIR    : ", round(ess_elir(results.posterior), digits=2))
+println("   Moments : ", round(ess_moment(results.posterior), digits=2))
+println("   Morita  : ", round(ess_morita(results.posterior), digits=2))
 
-println("\n3. Robustified Posterior (Mitigating Prior-Data Conflict):")
-println("   Weights: ", round.(results.robustified_posterior.weights, digits=3))
-println("   Means:   ", round.(results.robustified_posterior.mus, digits=3))
-
-# Clean up the sample file
-rm(filepath)
+# Robustification check
+println("\n3. Robustified Posterior (Final Component 'robust'):")
+weights = round.(results.robustified_posterior.weights, digits=3)
+println("   Weights: ", weights)

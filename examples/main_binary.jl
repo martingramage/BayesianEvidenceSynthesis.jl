@@ -1,35 +1,33 @@
 # examples/main_binary.jl
 using BayesianEvidenceSynthesis
 
-# 1. Create a sample clinical trial dataset (Binary Endpoint)
-filepath = "sample_binary_study.txt"
-open(filepath, "w") do io
-    println(io, "binary")
-    println(io, "r,n")
-    println(io, "2,10")
-    println(io, "5,20")
-    println(io, "3,15")
-end
+# Define path to binary study data
+data_path = joinpath(@__DIR__, "study_data_binary.txt")
 
 println("--- Starting Inference Pipeline (Binary Endpoint) ---")
+println("Using data: $data_path")
 
-# 2. Run the pipeline!
-results = run_inference_pipeline(filepath)
+# Execute inference pipeline
+results = run_inference_pipeline(data_path)
 
-# 3. View the Outputs
+# Display pipeline outputs
 println("\n=== FINAL PIPELINE OUTPUTS ===")
 
+# Posterior details
 println("\n1. MAP Posterior (Beta Mixture Components):")
-println("   Weights: ", round.(results.posterior.weights, digits=3))
-println("   Alphas:  ", round.(results.posterior.alphas, digits=3))
-println("   Betas:   ", round.(results.posterior.betas, digits=3))
+for i in 1:length(results.posterior.weights)
+    println("   Comp $i: w=$(round(results.posterior.weights[i], digits=3)) | " *
+            "α=$(round(results.posterior.alphas[i], digits=2)) | " *
+            "β=$(round(results.posterior.betas[i], digits=2))")
+end
 
-println("\n2. Effective Sample Size (ESS via ELIR):")
-println("   Equivalent to: ", results.ess, " patients")
+# ESS Analytics
+println("\n2. Effective Sample Size (ESS):")
+println("   ELIR    : ", round(ess_elir(results.posterior), digits=2))
+println("   Moments : ", round(ess_moment(results.posterior), digits=2))
+println("   Morita  : ", round(ess_morita(results.posterior), digits=2))
 
-println("\n3. Robustified Posterior (Mitigating Prior-Data Conflict):")
-println("   Weights: ", round.(results.robustified_posterior.weights, digits=3))
-println("   Alphas:  ", round.(results.robustified_posterior.alphas, digits=3))
-
-# Clean up the sample file
-rm(filepath)
+# Robustification check
+println("\n3. Robustified Posterior (Final Component 'robust'):")
+weights = round.(results.robustified_posterior.weights, digits=3)
+println("   Weights: ", weights)
