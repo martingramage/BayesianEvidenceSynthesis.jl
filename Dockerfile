@@ -1,17 +1,17 @@
-# Julia image
+# Official Julia image
 FROM julia:1.10-bookworm
 
-# Working directory
+# Work directory
 WORKDIR /app
 
-# Copy project files into the container
+# Copy project files
 COPY . .
 
-# Instantiate the environment to install all required packages
-RUN julia -e 'using Pkg; Pkg.instantiate()'
+# Instantiate the environment specifically for the current directory
+RUN julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
 
-# Port Oxygen server is using
+# Expose the port
 EXPOSE 8080
 
-# Start the server
+# Explicitly use the project environment when starting the server
 CMD ["julia", "--project=.", "server.jl"]
