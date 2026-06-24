@@ -7,6 +7,9 @@ WORKDIR /app
 # Copy project files
 COPY . .
 
+# 1 thread for package operations
+ENV JULIA_NUM_PRECOMPILE_TASKS=1
+
 # Instantiate the environment specifically for the current directory
 RUN julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
 
