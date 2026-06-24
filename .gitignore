@@ -1,0 +1,21 @@
+# --- Julia ---
+*.jl.mem
+*.jl.prof
+*.log
+*.sqlite
+*.DS_Store
+
+# --- Project artifacts ---
+Manifest.toml
+# Note: Keep Project.toml (it's required), but Manifest.toml can be regenerated
+# If you want to ensure exact reproducibility, you can remove 'Manifest.toml' above.
+
+# --- Temporary/Output files ---
+*.pdf
+*.txt
+temp_*.txt
+Report_*.pdf
+
+# --- Compiled/OS files ---
+.DS_Store
+.vscode/
