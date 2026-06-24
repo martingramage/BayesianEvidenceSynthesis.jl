@@ -1,33 +1,103 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bayesian Meta-Analysis Generator</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f7f6;
+            margin: 0;
+        }
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        #loading { display: none; margin-top: 15px; font-weight: 600; color: #2c3e50; }
+        button {
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 10px;
+        }
+        button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+    </style>
+</head>
 <body>
-    <h2>Bayesian Meta-Analysis Report Generator</h2>
-    <input type="file" id="fileInput">
-    <button onclick="uploadFile()">Generate PDF Report</button>
+    <div class="card">
+        <h2>Meta-Analysis Report</h2>
+        <input type="file" id="fileInput" style="margin: 15px 0; display: block; width: 100%;">
+        <button id="generateBtn">Generate PDF Report</button>
+        
+        <div id="loading">
+            <div class="spinner"></div> Synthesizing evidence...
+        </div>
+    </div>
 
     <script>
-    async function uploadFile() {
+    document.getElementById('generateBtn').addEventListener('click', async () => {
         const fileInput = document.getElementById('fileInput');
-        const file = fileInput.files[0];
-        
-        // Ensure you are pointing to the full URL
-        const response = await fetch('http://localhost:8080/generate_report', {
-            method: 'POST',
-            body: file,
-            headers: { 'Content-Type': 'application/octet-stream' }
-        });
+        const btn = document.getElementById('generateBtn');
+        const loading = document.getElementById('loading');
 
-        if (response.ok) {
+        if (!fileInput.files[0]) {
+            alert("Please select a valid data file.");
+            return;
+        }
+
+        btn.disabled = true;
+        loading.style.display = 'block';
+
+        try {
+            const response = await fetch('http://localhost:8080/generate_report', {
+                method: 'POST',
+                body: fileInput.files[0],
+                headers: { 'Content-Type': 'application/octet-stream' }
+            });
+
+            if (!response.ok) throw new Error('Server processing failed.');
+
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = "Report.pdf";
+            a.download = `MAP_Report_${Date.now()}.pdf`;
             a.click();
-        } else {
-            console.error("Server error:", response.statusText);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Error:", error);
+            alert("An error occurred during report generation.");
+        } finally {
+            btn.disabled = false;
+            loading.style.display = 'none';
         }
-    }
-</script>
+    });
+    </script>
 </body>
 </html>
