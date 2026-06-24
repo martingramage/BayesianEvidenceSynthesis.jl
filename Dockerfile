@@ -8,7 +8,7 @@ WORKDIR /app
 COPY . .
 
 # Install dependencies
-RUN julia --project=. -e 'using Pkg; Pkg.instantiate()'
+RUN julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.develop(PackageSpec(path=".")); Pkg.precompile()'
 
 # Hugging Face port 7860
 EXPOSE 7860
