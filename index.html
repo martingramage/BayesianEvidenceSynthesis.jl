@@ -61,6 +61,9 @@
     </div>
 
     <script>
+    // Production API endpoint
+    const API_ENDPOINT = 'https://martingramage-bayesian-evidence-synthesis.hf.space/generate_report';
+
     document.getElementById('generateBtn').addEventListener('click', async () => {
         const fileInput = document.getElementById('fileInput');
         const btn = document.getElementById('generateBtn');
@@ -75,14 +78,15 @@
         loading.style.display = 'block';
 
         try {
-            const response = await fetch('http://localhost:8080/generate_report', {
+            const response = await fetch(API_ENDPOINT, {
                 method: 'POST',
                 body: fileInput.files[0],
                 headers: { 'Content-Type': 'application/octet-stream' }
             });
 
-            if (!response.ok) throw new Error('Server processing failed.');
+            if (!response.ok) throw new Error(`Server returned ${response.status}`);
 
+            // Trigger file download
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -91,8 +95,8 @@
             a.click();
             window.URL.revokeObjectURL(url);
         } catch (error) {
-            console.error("Error:", error);
-            alert("An error occurred during report generation.");
+            console.error("API Error:", error);
+            alert("Failed to generate report. Ensure the Julia API is running.");
         } finally {
             btn.disabled = false;
             loading.style.display = 'none';
