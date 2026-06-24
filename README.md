@@ -85,7 +85,11 @@ https://github.com/martingramage/RBest-vs-Bayesmeta
 
 ## API
 
-The application exposes a report-generation endpoint:
+### Interactive Frontend
+
+Launch the hosted web interface to generate reports directly from your browser:
+
+[![Open Frontend](https://img.shields.io/badge/Open-Web%20Interface-blue?style=for-the-badge)](https://huggingface.co/spaces/martingramage/bayesian-evidence-synthesis)
 
 ### Endpoint
 
@@ -95,7 +99,7 @@ POST /generate_report
 
 ### Input
 
-* Binary data file containing study information.
+* Binary or normal summary data file containing study information.
 
 ### Output
 
@@ -104,11 +108,21 @@ A PDF report including:
 * MAP posterior distributions
 * ESS diagnostics
 * Robustified prior distributions
-* Summary tables and graphical outputs
+* Summary tables
+* Graphical outputs
+
+### Example using curl
+
+```bash
+curl -X POST \
+  -F "file=@study_data.bin" \
+  http://localhost:8080/generate_report \
+  --output report.pdf
+```
 
 ---
 
-## Installation
+## Installation and Usage
 
 Clone the repository and instantiate the Julia environment:
 
@@ -118,6 +132,61 @@ git clone https://github.com/martingramage/BayesianEvidenceSynthesis.jl.git
 cd BayesianEvidenceSynthesis.jl
 
 julia --project=. -e 'using Pkg; Pkg.instantiate()'
+```
+
+### 1. Start the API Server
+
+Launch the Oxygen.jl server:
+
+```bash
+julia --project=. server.jl
+```
+
+Once started, the API endpoint will be available locally.
+
+### 2. Run the Test Suite
+
+Verify that all inference routines and diagnostics pass validation:
+
+```bash
+julia --project=. test/runtests.jl
+```
+
+### 3. Execute Example Workflows
+
+Run the provided examples to reproduce complete evidence synthesis workflows:
+
+```bash
+julia --project=. examples/main_binary.jl
+```
+
+> Additional examples are available in the `examples/` directory.
+
+### 4. Submit Data
+
+Data can be submitted in two ways:
+
+#### Option A: Local Frontend
+
+Open the browser interface:
+
+```bash
+open index.html
+```
+
+or simply open `index.html` in your preferred browser.
+
+The interface allows uploading study data and downloading the generated PDF report.
+
+#### Option B: REST API
+
+Send the data directly through the API:
+
+```bash
+curl -X POST \
+  -F "file=@study_data.bin" \
+  http://localhost:8080/generate_report \
+  --output report.pdf
 ```
 
 ---
@@ -132,24 +201,9 @@ julia --project=. -e 'using BayesianEvidenceSynthesis; println("Package integrit
 
 ---
 
-## Deployment
-
-To synchronize changes with both GitHub and the deployed Hugging Face Space:
-
-```bash
-git add .
-
-git commit -m "docs: update README"
-
-git push origin main
-
-git push huggingface main
-```
-
----
-
 ## License
 
 This project is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0).
 
 See the `LICENSE` file for details.
+
