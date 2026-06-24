@@ -11,7 +11,7 @@ COPY . .
 ENV JULIA_NUM_PRECOMPILE_TASKS=1
 
 # Instantiate the environment specifically for the current directory
-RUN julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
+RUN julia --project=. -e 'using Pkg; Pkg.instantiate()'
 
 # Expose the port
 EXPOSE 8080
