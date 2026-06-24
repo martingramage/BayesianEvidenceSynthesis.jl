@@ -1,7 +1,7 @@
 # BayesianEvidenceSynthesis.jl
 
 [![Julia 1.10](https://img.shields.io/badge/julia-1.10-purple.svg)](https://julialang.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](LICENSE)
 [![Live API](https://img.shields.io/badge/Live%20API-Running-brightgreen)](https://huggingface.co/spaces/martingramage/bayesian-evidence-synthesis)
 
 A Julia framework for Bayesian evidence synthesis and meta-analysis, designed to support the construction of Meta-Analytic Predictive (MAP) priors, effective sample size (ESS) estimation, and robustification procedures commonly used in clinical development and regulatory settings.
@@ -150,6 +150,6 @@ git push huggingface main
 
 ## License
 
-This project is distributed under the AGPL-3.0 License.
+This project is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0).
 
 See the `LICENSE` file for details.
