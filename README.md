@@ -1,47 +1,155 @@
-# 📊 BayesianEvidenceSynthesis.jl
+# BayesianEvidenceSynthesis.jl
 
-![Julia Version](https://img.shields.io/badge/Julia-v1.11+-9558B2?logo=julia)
-![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
-![License](https://img.shields.io/badge/license-MIT-blue)
+[![Julia 1.10](https://img.shields.io/badge/julia-1.10-purple.svg)](https://julialang.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Live API](https://img.shields.io/badge/Live%20API-Running-brightgreen)](https://huggingface.co/spaces/martingramage/bayesian-evidence-synthesis)
 
-**BayesianEvidenceSynthesis.jl** is a high-performance Julia package for deriving Meta-Analytic Predictive (MAP) prior distributions. It facilitates the incorporation of historical information into clinical trials using Bayesian hierarchical models.
+A Julia framework for Bayesian evidence synthesis and meta-analysis, designed to support the construction of Meta-Analytic Predictive (MAP) priors, effective sample size (ESS) estimation, and robustification procedures commonly used in clinical development and regulatory settings.
 
-This package provides a unified framework to compare and utilize two industry-standard approaches for borrowing historical control data:
-1. **The MCMC Approach (RBesT methodology):** Uses exact Hamiltonian Monte Carlo (NUTS) to yield an asymptotically correct posterior, automatically fitted to a parametric conjugate mixture via an Expectation-Maximization (EM) algorithm.
-2. **The Numerical Integration Approach (bayesmeta methodology):** Uses highly optimized adaptive quadrature (`QuadGK`) under normality assumptions to produce a fully analytical mixture distribution in fractions of a second.
+The package reproduces and extends key functionalities available in the R packages **RBesT** and **Bayesmeta**, providing a unified environment for posterior synthesis, prior diagnostics, and automated report generation.
 
 ---
 
-## ✨ Key Features
+## Overview
 
-- **Binary Endpoints:** Exact posterior sampling via `Turing.jl` (NUTS), followed by automated parametric Beta-mixture fitting using a custom Expectation-Maximization (EM) algorithm with exact Newton-Raphson M-steps. Automatically selects the optimal number of components using the Akaike Information Criterion (AIC).
-- **Normal Endpoints:** Blazing fast analytical numerical integration using `QuadGK.jl` to handle continuous effect sizes, preserving the exact normal mixture distribution.
-- **Advanced Analytics:** Calculate the **Effective Sample Size (ESS)** using the rigorously defined Effective Log-Information Ratio (ELIR) method, alongside traditional Moments-matching and Morita methods.
-- **Robustification:** Automatically mitigate prior-data conflict by injecting a vague distribution component (e.g., 20% weight) to prevent Type-I error inflation.
-- **Automated Reporting:** Generate presentation-ready `.pdf` reports containing visual density comparisons and ESS tables using `Plots.jl`.
+BayesianEvidenceSynthesis.jl facilitates the incorporation of historical evidence into current studies through Bayesian meta-analysis. The framework provides tools for:
+
+* Construction of **Meta-Analytic Predictive (MAP) priors**.
+* Estimation of **Effective Sample Size (ESS)** using multiple methodologies:
+
+  * ELIR ESS
+  * Moment-matching ESS
+  * Morita ESS
+* Generation of **robustified priors** to address potential prior-data conflict.
+* Automated production of reproducible evidence synthesis reports.
+
+The project is implemented entirely in Julia and exposes its functionality through both a package interface and a REST API.
 
 ---
 
-## 📂 Repository Structure
+## Repository Structure
 
-Our architecture separates the mathematical engine (`src/`) from the end-user driver scripts (`examples/`).
+The repository follows a modular architecture:
 
 ```text
-├── Project.toml               # Package dependencies
-├── Manifest.toml              # Locked dependency versions
-├── README.md                  # Project documentation
-│
-├── examples/                  # 🚀 RUN THESE SCRIPTS
-│   ├── main.jl                # CLI script for fast console outputs
-│   └── report.jl              # Generates a visual PDF report of the priors
-│
-├── src/                       # 🧠 THE MATHEMATICAL ENGINE
-│   ├── BayesianEvidenceSynthesis.jl 
-│   ├── parser.jl              # Handles clinical study data ingestion
-│   ├── inference.jl           # Orchestrates MCMC vs Numerical paths
-│   ├── mcmc.jl                # Turing.jl models and sampling
-│   ├── mixfit.jl              # EM algorithm and AIC model selection
-│   └── analytics.jl           # ESS math (ELIR/Morita) & Robustification
-│
-└── test/                      # ✅ TEST SUITE
-    └── runtests.jl            # Automated CI tests
+.
+├── src/                # Core package implementation
+├── examples/           # End-to-end workflow examples
+├── test/               # Unit and integration tests
+├── server.jl           # Oxygen.jl API entry point
+├── index.html          # Frontend interface
+├── Dockerfile          # Containerized deployment
+├── Project.toml        # Julia environment definition
+└── Manifest.toml       # Reproducible dependency snapshot
+```
+
+### Main Components
+
+| Component    | Description                                                             |
+| ------------ | ----------------------------------------------------------------------- |
+| `src/`       | Bayesian inference routines, numerical methods, and package definitions |
+| `examples/`  | Reproducible workflows illustrating package usage                       |
+| `test/`      | Validation of inference algorithms and diagnostics                      |
+| `server.jl`  | REST API implementation using Oxygen.jl                                 |
+| `index.html` | Browser-based interface for report generation                           |
+| `Dockerfile` | Deployment configuration for production environments                    |
+
+---
+
+## Methodological Background
+
+This framework was developed following a comparative evaluation of two widely used approaches for Bayesian evidence synthesis:
+
+* **RBesT**: MCMC-based estimation of MAP priors.
+* **Bayesmeta**: Analytical and numerical integration methods for Bayesian meta-analysis.
+
+For a detailed methodological discussion and benchmarking study, see:
+
+**RBesT vs Bayesmeta Comparison Repository**
+
+https://github.com/martingramage/RBest-vs-Bayesmeta
+
+---
+
+## Features
+
+* Bayesian meta-analysis for historical borrowing.
+* MAP prior construction and posterior updating.
+* Multiple ESS estimation methodologies.
+* Robustification procedures for prior-data conflict assessment.
+* Automated PDF report generation.
+* REST API deployment through Oxygen.jl.
+* Containerized execution using Docker.
+
+---
+
+## API
+
+The application exposes a report-generation endpoint:
+
+### Endpoint
+
+```http
+POST /generate_report
+```
+
+### Input
+
+* Binary data file containing study information.
+
+### Output
+
+A PDF report including:
+
+* MAP posterior distributions
+* ESS diagnostics
+* Robustified prior distributions
+* Summary tables and graphical outputs
+
+---
+
+## Installation
+
+Clone the repository and instantiate the Julia environment:
+
+```bash
+git clone https://github.com/martingramage/BayesianEvidenceSynthesis.jl.git
+
+cd BayesianEvidenceSynthesis.jl
+
+julia --project=. -e 'using Pkg; Pkg.instantiate()'
+```
+
+---
+
+## Verification
+
+Verify that the package loads correctly:
+
+```bash
+julia --project=. -e 'using BayesianEvidenceSynthesis; println("Package integrity verified.")'
+```
+
+---
+
+## Deployment
+
+To synchronize changes with both GitHub and the deployed Hugging Face Space:
+
+```bash
+git add .
+
+git commit -m "docs: update README"
+
+git push origin main
+
+git push huggingface main
+```
+
+---
+
+## License
+
+This project is distributed under the AGPL-3.0 License.
+
+See the `LICENSE` file for details.
