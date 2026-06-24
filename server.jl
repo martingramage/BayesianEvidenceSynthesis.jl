@@ -112,4 +112,11 @@ end
     end
 end
 
-serve(host="0.0.0.0", port=8080, middleware=[Cors(allowed_origins=["*"])])
+# Ask Render which port it wants to use
+render_port = parse(Int, get(ENV, "PORT", "8080"))
+
+# Print a message so we know when it reaches this point
+println("Libraries loaded! Starting server on 0.0.0.0:$render_port...")
+
+# Start the server
+serve(host="0.0.0.0", port=render_port, cors=true)
