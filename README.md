@@ -4,57 +4,71 @@
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](LICENSE)
 [![Live API](https://img.shields.io/badge/Live%20API-Running-brightgreen)](https://huggingface.co/spaces/martingramage/bayesian-evidence-synthesis)
 
-A Julia framework for Bayesian evidence synthesis and meta-analysis, designed to support the construction of Meta-Analytic Predictive (MAP) priors, effective sample size (ESS) estimation, and robustification procedures commonly used in clinical development and regulatory settings.
+A Julia framework for **Bayesian evidence synthesis**, **Meta-Analytic Predictive (MAP) prior construction**, **effective sample size (ESS) estimation**, and **prior robustification**.
 
-The package reproduces and extends key functionalities available in the R packages **RBesT** and **Bayesmeta**, providing a unified environment for posterior synthesis, prior diagnostics, and automated report generation.
+The package is designed for historical borrowing applications in clinical development, pharmaceutical statistics, and Bayesian decision-making workflows. It reproduces and extends key functionality from the R ecosystems **RBesT** and **Bayesmeta**, while providing a unified Julia-native environment for inference, diagnostics, reporting, and deployment.
 
 ---
 
 ## Overview
 
-BayesianEvidenceSynthesis.jl facilitates the incorporation of historical evidence into current studies through Bayesian meta-analysis. The framework provides tools for:
+BayesianEvidenceSynthesis.jl facilitates the incorporation of historical evidence into current studies through Bayesian meta-analysis.
 
-* Construction of **Meta-Analytic Predictive (MAP) priors**.
-* Estimation of **Effective Sample Size (ESS)** using multiple methodologies:
+Core capabilities include:
+
+* Construction of **Meta-Analytic Predictive (MAP) priors**
+* Estimation of **Effective Sample Size (ESS)** using:
 
   * ELIR ESS
-  * Moment-matching ESS
+  * Moment-Matching ESS
   * Morita ESS
-* Generation of **robustified priors** to address potential prior-data conflict.
-* Automated production of reproducible evidence synthesis reports.
+* Generation of **robustified priors** to mitigate prior-data conflict
+* Automated generation of reproducible PDF reports
+* Local and cloud-based execution through a REST API
 
-The project is implemented entirely in Julia and exposes its functionality through both a package interface and a REST API.
+The framework is implemented entirely in Julia and can be used either as a package, a local service, or a hosted web application.
 
 ---
 
 ## Usage Modes
 
-| Mode                     | Requirements                             |
-| ------------------------ | ---------------------------------------- |
-| Quick Report Generation  | Open `index.html` and use the hosted API |
-| Local API Execution      | Julia installation required              |
-| Development & Validation | Julia + tests + examples                 |
+| Mode                     | Description                                                      |
+| ------------------------ | ---------------------------------------------------------------- |
+| Hosted Report Generation | Use the browser interface and cloud API without installing Julia |
+| Local API Execution      | Run the Oxygen.jl service locally                                |
+| Development & Validation | Full package installation with tests and examples                |
 
 ---
 
 ## Quick Start (No Installation Required)
 
-If your goal is simply to generate Bayesian evidence synthesis reports, no Julia installation is required.
+If your goal is simply to generate Bayesian evidence synthesis reports, you do **not** need to install Julia. The application can be used directly from your web browser in either of the following ways.
 
-The repository includes a lightweight browser interface:
+### Web Interface
 
-```text
-index.html
+Launch the hosted application through your browser:
+
+**[Launch Bayesian Evidence Synthesis App](https://huggingface.co/spaces/martingramage/Bayesian-Evidence-Synthesis)**
+
+1. Open the link above.
+2. Upload your study data.
+3. Click **Generate PDF Report** to create and download your report.
+
+Alternatively, you can download the `index.html` file and open it in any modern web browser. The interface will automatically use a locally running backend if one is available; otherwise, it will seamlessly fall back to the hosted cloud API to generate your report.
+
+### Direct API Usage
+
+You can also submit data directly to the hosted API:
+
+```bash
+curl -X POST \
+  -H "Content-Type: application/octet-stream" \
+  --data-binary "@examples/study_data_binary.txt" \
+  https://martingramage-bayesian-evidence-synthesis.hf.space/generate_report \
+  --output report.pdf
 ```
 
-Simply:
-
-1. Download or clone the repository.
-2. Open `index.html` in your preferred browser.
-3. Upload your study data.
-4. Download the generated PDF report.
-
-The frontend communicates directly with the hosted BayesianEvidenceSynthesis API, allowing report generation without running any local services.
+Once processing is complete, the generated PDF report will be downloaded automatically as `report.pdf`.
 
 ---
 
@@ -65,36 +79,36 @@ The frontend communicates directly with the hosted BayesianEvidenceSynthesis API
 ├── src/                # Core package implementation
 ├── examples/           # End-to-end workflow examples
 ├── test/               # Unit and integration tests
-├── server.jl           # Oxygen.jl API entry point
-├── index.html          # Frontend interface
+├── server.jl           # Oxygen.jl REST API
+├── index.html          # Browser interface
 ├── Dockerfile          # Containerized deployment
-├── Project.toml        # Julia environment definition
+├── Project.toml        # Julia environment
 └── Manifest.toml       # Reproducible dependency snapshot
 ```
 
 ### Main Components
 
-| Component    | Description                                                             |
-| ------------ | ----------------------------------------------------------------------- |
-| `src/`       | Bayesian inference routines, numerical methods, and package definitions |
-| `examples/`  | Reproducible workflows illustrating package usage                       |
-| `test/`      | Validation of inference algorithms and diagnostics                      |
-| `server.jl`  | REST API implementation using Oxygen.jl                                 |
-| `index.html` | Browser-based interface for report generation                           |
-| `Dockerfile` | Deployment configuration for production environments                    |
+| Component    | Description                                            |
+| ------------ | ------------------------------------------------------ |
+| `src/`       | Bayesian inference routines and package implementation |
+| `examples/`  | Reproducible workflows demonstrating package usage     |
+| `test/`      | Validation of inference procedures and diagnostics     |
+| `server.jl`  | REST API implementation using Oxygen.jl                |
+| `index.html` | Browser-based report generation interface              |
+| `Dockerfile` | Production deployment configuration                    |
 
 ---
 
 ## Methodological Background
 
-This framework was developed following a comparative evaluation of two widely used approaches for Bayesian evidence synthesis:
+The framework was developed following a comparative evaluation of two widely used Bayesian evidence synthesis approaches:
 
-* **RBesT** — MCMC-based estimation of MAP priors.
-* **Bayesmeta** — Analytical and numerical integration methods for Bayesian meta-analysis.
+* **RBesT** — MCMC-based MAP prior estimation
+* **Bayesmeta** — Analytical and numerical Bayesian meta-analysis methods
 
-For a detailed methodological discussion and benchmarking study, see:
+A detailed benchmarking study is available at:
 
-**RBesT vs Bayesmeta Comparison Repository**
+### RBesT vs Bayesmeta Comparison
 
 https://github.com/martingramage/RBest-vs-Bayesmeta
 
@@ -102,52 +116,28 @@ https://github.com/martingramage/RBest-vs-Bayesmeta
 
 ## Features
 
-* Bayesian meta-analysis for historical borrowing.
-* MAP prior construction and posterior updating.
-* Multiple ESS estimation methodologies.
-* Robustification procedures for prior-data conflict assessment.
-* Automated PDF report generation.
-* REST API deployment through Oxygen.jl.
-* Containerized execution using Docker.
+* Bayesian meta-analysis for historical borrowing
+* MAP prior construction and posterior updating
+* Multiple ESS estimation methodologies
+* Prior robustification procedures
+* Automated PDF report generation
+* REST API deployment through Oxygen.jl
+* Browser-based report generation
+* Containerized execution using Docker
 
 ---
 
-## REST API
+## Local Installation and Development
 
-### Endpoint
+The hosted API is sufficient for most users and requires no installation.
 
-```http
-POST /generate_report
-```
+The instructions below are intended for users who wish to:
 
-### Input
-
-* Binary or summary data file containing study information.
-
-### Output
-
-A PDF report including:
-
-* MAP posterior distributions
-* ESS diagnostics
-* Robustified prior distributions
-* Summary tables
-* Graphical outputs
-
-### Example Request
-
-```bash
-curl -X POST \
-  -F "file=@study_data.bin" \
-  http://localhost:8080/generate_report \
-  --output report.pdf
-```
-
----
-
-## Local Installation and Usage
-
-For users who wish to run the framework locally, customize analyses, execute examples, or contribute to development.
+* Run the API locally
+* Customize analyses
+* Modify the report generation workflow
+* Execute examples and validation studies
+* Contribute to package development
 
 ### Installation
 
@@ -161,71 +151,159 @@ cd BayesianEvidenceSynthesis.jl
 julia --project=. -e 'using Pkg; Pkg.instantiate()'
 ```
 
-### 1. Start the Local API Server
+### Verify Installation
 
-Launch the Oxygen.jl server:
+Confirm that the package loads correctly:
+
+```bash
+julia --project=. -e 'using BayesianEvidenceSynthesis; println("Package integrity verified.")'
+```
+
+---
+
+## Running the Local API
+
+The package includes an Oxygen.jl-based REST API.
+
+Start the server with:
 
 ```bash
 julia --project=. server.jl
 ```
 
-Once started, the REST API will be available locally.
+Once started, the API will be available at:
 
-### 2. Run the Test Suite
-
-Validate inference routines and diagnostics:
-
-```bash
-julia --project=. test/runtests.jl
+```text
+http://localhost:7860
 ```
 
-### 3. Execute Example Workflows
+All report generation requests will be handled locally on your machine.
 
-Run one of the included end-to-end examples:
+---
 
-```bash
-julia --project=. examples/main_binary.jl
-```
+## Browser Interface and Automatic Fallback
 
-Additional workflows are available in the `examples/` directory.
-
-### 4. Submit Data
-
-#### Option A — Browser Interface
-
-Open:
+The repository includes a lightweight browser interface:
 
 ```text
 index.html
 ```
 
-in your preferred browser.
+When opened in a browser, the interface automatically attempts to connect to a locally running API server:
 
-The frontend can be configured to use either:
+```text
+http://localhost:7860
+```
 
-* The hosted cloud API.
-* Your locally running API instance.
+If a local server is detected, all computations and report generation are performed locally.
 
-#### Option B — REST API
+If no local server is available, the interface automatically falls back to the hosted cloud deployment:
 
-Send data directly to the local server:
+```text
+https://martingramage-bayesian-evidence-synthesis.hf.space
+```
+
+No configuration changes are required.
+
+A status indicator within the interface displays which backend is currently being used:
+
+* Local API
+* Hosted Cloud API
+
+This design allows users to switch seamlessly between local and cloud execution without modifying the interface.
+
+---
+
+## REST API Usage
+
+Whether running locally or using the hosted deployment, the API exposes the same endpoint:
+
+```http
+POST /generate_report
+```
+
+### Input
+
+A study dataset containing binary or summary-level information.
+
+### Output
+
+A PDF report containing:
+
+* MAP posterior distributions
+* Effective Sample Size diagnostics
+* Robustified prior distributions
+* Mixture model summaries
+* Publication-quality figures and tables
+
+### Example: Local Server
 
 ```bash
 curl -X POST \
-  -F "file=@study_data.bin" \
-  http://localhost:8080/generate_report \
+  -H "Content-Type: application/octet-stream" \
+  --data-binary "@examples/study_data_binary.txt" \
+  http://localhost:7860/generate_report \
   --output report.pdf
+```
+
+### Example: Hosted Cloud Service
+
+```bash
+curl -X POST \
+  -H "Content-Type: application/octet-stream" \
+  --data-binary "@examples/study_data_binary.txt" \
+  https://martingramage-bayesian-evidence-synthesis.hf.space/generate_report \
+  --output report.pdf
+```
+
+The generated report will be downloaded automatically upon completion.
+
+---
+
+## Running Tests
+
+Execute the complete validation suite:
+
+```bash
+julia --project=. test/runtests.jl
 ```
 
 ---
 
-## Verification
+## Running Examples
 
-Verify that the package loads correctly:
+Example workflows are provided in the `examples/` directory.
 
 ```bash
-julia --project=. -e 'using BayesianEvidenceSynthesis; println("Package integrity verified.")'
+julia --project=. examples/main_binary.jl
 ```
+
+These examples demonstrate MAP prior construction, posterior synthesis, ESS estimation, and robustification procedures.
+
+---
+
+## Intended Use
+
+BayesianEvidenceSynthesis.jl is intended for:
+
+* Bayesian statisticians
+* Clinical trial researchers
+* Pharmaceutical statisticians
+* Evidence synthesis workflows
+* Historical borrowing studies
+* Methodological research and education
+
+---
+
+## Disclaimer
+
+This software is provided for research, methodological evaluation, education, and statistical workflow development.
+
+While the package implements established Bayesian evidence synthesis methodologies, users remain responsible for verifying the suitability of all models, assumptions, input data, and resulting analyses for their specific application.
+
+The authors make no guarantee regarding the correctness, completeness, or regulatory acceptability of results generated by the software. Any use of outputs in clinical development, regulatory submissions, healthcare decision-making, or other high-impact settings should be accompanied by appropriate scientific review, validation, and independent verification.
+
+By using this software, users acknowledge that responsibility for interpretation and decision-making remains with the analyst and not with the software itself.
 
 ---
 
@@ -234,5 +312,3 @@ julia --project=. -e 'using BayesianEvidenceSynthesis; println("Package integrit
 This project is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0).
 
 See the `LICENSE` file for details.
-
-
