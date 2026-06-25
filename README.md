@@ -222,9 +222,39 @@ Whether running locally or using the hosted deployment, the API exposes the same
 POST /generate_report
 ```
 
-### Input
+### Input Data Format
 
-A study dataset containing binary or normal summary-level information.
+The API accepts plain text (`.txt`) files containing summary statistics for a single endpoint type.
+
+#### File Structure
+
+1. **First line:** Endpoint type (`binary` or `normal`)
+2. **Remaining lines:** CSV-formatted table containing the required summary statistics
+
+* Required Columns
+
+| Endpoint Type | Required Columns |
+|--------------|------------------|
+| `binary` | `r`, `n` |
+| `normal` | `mean`, `sd`, `n` |
+
+* Column Definitions
+
+**Binary Endpoint (`binary`)**
+- `r` — Number of responders
+- `n` — Total sample size
+
+**Normal Endpoint (`normal`)**
+- `mean` — Sample mean
+- `sd` — Sample standard deviation
+- `n` — Sample size
+
+#### Examples
+
+Example input files are available in the `examples/` directory:
+
+- `examples/study_data_binary.txt`
+- `examples/study_data_normal.txt`
 
 ### Output
 
