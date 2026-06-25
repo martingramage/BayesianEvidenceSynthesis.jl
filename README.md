@@ -224,7 +224,7 @@ POST /generate_report
 
 ### Input
 
-A study dataset containing binary or summary-level information.
+A study dataset containing binary or normal summary-level information.
 
 ### Output
 
