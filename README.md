@@ -42,26 +42,23 @@ The framework is implemented entirely in Julia and can be used either as a packa
 
 ## Quick Start (No Installation Required)
 
-If your goal is simply to generate Bayesian evidence synthesis reports, no Julia installation is required.
+If your goal is simply to generate Bayesian evidence synthesis reports, you do **not** need to install Julia. The application can be used directly from your web browser in either of the following ways.
 
-The repository includes a lightweight browser interface:
+### Web Interface
 
-```text
-index.html
-```
+Launch the hosted application through your browser:
 
-### Steps
+**[Launch Bayesian Evidence Synthesis App](https://huggingface.co/spaces/martingramage/Bayesian-Evidence-Synthesis)**
 
-1. Download or clone the repository.
-2. Open `index.html` in your preferred browser.
-3. Upload your study data.
-4. Download the generated PDF report.
+1. Open the link above.
+2. Upload your study data.
+3. Click **Generate PDF Report** to create and download your report.
 
-The frontend automatically communicates with the hosted BayesianEvidenceSynthesis API, allowing report generation directly from your browser.
+Alternatively, you can download the `index.html` file and open it in any modern web browser. The interface will automatically use a locally running backend if one is available; otherwise, it will seamlessly fall back to the hosted cloud API to generate your report.
 
 ### Direct API Usage
 
-You may also submit data directly to the hosted API:
+You can also submit data directly to the hosted API:
 
 ```bash
 curl -X POST \
@@ -71,7 +68,7 @@ curl -X POST \
   --output report.pdf
 ```
 
-The generated report will be downloaded automatically upon completion.
+Once processing is complete, the generated PDF report will be downloaded automatically as `report.pdf`.
 
 ---
 
