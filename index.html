@@ -35,6 +35,7 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         #loading { display: none; margin-top: 15px; font-weight: 600; color: #2c3e50; }
+        #status-msg { margin-bottom: 10px; font-size: 0.85rem; color: #7f8c8d; }
         button {
             background-color: #2c3e50;
             color: white;
@@ -52,6 +53,7 @@
 <body>
     <div class="card">
         <h2>Meta-Analysis Report</h2>
+        <div id="status-msg">Detecting API...</div>
         <input type="file" id="fileInput" style="margin: 15px 0; display: block; width: 100%;">
         <button id="generateBtn">Generate PDF Report</button>
         
@@ -61,8 +63,26 @@
     </div>
 
     <script>
-    // Production API endpoint
-    const API_ENDPOINT = 'https://martingramage-bayesian-evidence-synthesis.hf.space/generate_report';
+    const LOCAL_URL = 'http://localhost:7860/generate_report';
+    const CLOUD_URL = 'https://martingramage-bayesian-evidence-synthesis.hf.space/generate_report';
+    let activeEndpoint = CLOUD_URL;
+
+    // Detect server availability and update UI
+    async function checkServer() {
+        try {
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), 1000);
+            await fetch(LOCAL_URL, { method: 'OPTIONS', signal: controller.signal });
+            clearTimeout(id);
+            activeEndpoint = LOCAL_URL;
+            document.getElementById('status-msg').innerText = "Status: Using Local API";
+        } catch (e) {
+            activeEndpoint = CLOUD_URL;
+            document.getElementById('status-msg').innerText = "Status: Using Cloud API";
+        }
+    }
+
+    checkServer();
 
     document.getElementById('generateBtn').addEventListener('click', async () => {
         const fileInput = document.getElementById('fileInput');
@@ -78,7 +98,7 @@
         loading.style.display = 'block';
 
         try {
-            const response = await fetch(API_ENDPOINT, {
+            const response = await fetch(activeEndpoint, {
                 method: 'POST',
                 body: fileInput.files[0],
                 headers: { 'Content-Type': 'application/octet-stream' }
@@ -86,7 +106,6 @@
 
             if (!response.ok) throw new Error(`Server returned ${response.status}`);
 
-            // Trigger file download
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -96,7 +115,7 @@
             window.URL.revokeObjectURL(url);
         } catch (error) {
             console.error("API Error:", error);
-            alert("Failed to generate report. Ensure the Julia API is running.");
+            alert("Failed to generate report. Ensure the API is reachable.");
         } finally {
             btn.disabled = false;
             loading.style.display = 'none';
