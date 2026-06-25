@@ -9,6 +9,11 @@ using Dates
 using Typst_jll
 using UUIDs
 
+# Frontend route to serve the index.html file for the web interface
+@get "/" function()
+    return html(read("index.html", String))
+end
+
 """
 Evaluates the probability density of a mixture model at point x.
 """
