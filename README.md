@@ -229,6 +229,7 @@ The API accepts plain text (`.txt`) files containing summary statistics for a si
 #### File Structure
 
  **First line:** Endpoint type (`binary` or `normal`)
+ 
  **Remaining lines:** CSV-formatted table containing the required summary statistics
 
 * Required Columns
