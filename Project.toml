@@ -16,6 +16,7 @@ StatsFuns = "4c63d2b9-4356-54db-8cca-17b64c39e42c"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Turing = "fce5fe82-541a-59a6-adf8-730c64b5f9a0"
 Typst_jll = "eb4b1da6-20f6-5c66-9826-fdb8ad410d0e"
+UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 
 [compat]
 Distributions = "0.25.127"
